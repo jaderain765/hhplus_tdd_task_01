@@ -13,9 +13,9 @@ import java.util.List;
 @Service
 public class PointService {
 
-    UserPointRepository userPointRepository;
+    private UserPointRepository userPointRepository;
 
-    PointHistoryRepository pointHistoryRepository;
+    private PointHistoryRepository pointHistoryRepository;
 
     @Autowired
     public PointService(UserPointRepository userPointRepository, PointHistoryRepository pointHistoryRepository){
@@ -56,7 +56,7 @@ public class PointService {
         UserPoint updateUserPoint = new UserPoint(
                 userId,
                 changePoint,
-                System.currentTimeMillis()
+                findUserPoint.updateMillis()
         );
 
         PointHistory insertPointHistory = new PointHistory(
@@ -67,9 +67,7 @@ public class PointService {
                 System.currentTimeMillis()
         );
 
-        userPointRepository.save(updateUserPoint);
         pointHistoryRepository.save(insertPointHistory);
-
-        return updateUserPoint;
+        return userPointRepository.save(updateUserPoint);
     }
 }

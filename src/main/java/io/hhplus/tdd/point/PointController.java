@@ -14,7 +14,7 @@ public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
-    PointService pointService;
+    private PointService pointService;
 
     @Autowired
     public PointController(PointService pointService) {

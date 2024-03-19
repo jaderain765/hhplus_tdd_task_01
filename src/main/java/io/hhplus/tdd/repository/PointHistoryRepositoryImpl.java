@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public class PointHistoryRepositoryImpl implements PointHistoryRepository{
 
-    PointHistoryTable pointHistoryTable;
+    private PointHistoryTable pointHistoryTable;
 
     @Autowired
     public PointHistoryRepositoryImpl(PointHistoryTable pointHistoryTable){
