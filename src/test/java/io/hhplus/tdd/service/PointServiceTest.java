@@ -100,11 +100,14 @@ class PointServiceTest {
     void updateUserPoint_포인트가_모자랄_때() {
         long userId1 = 1L;
 
+        UserPoint state1 = UserPoint.empty(userId1);
+
         try{
-            pointService.updateUserPoint(userId1, 10000L, TransactionType.CHARGE);
+            state1 = pointService.updateUserPoint(userId1, 10000L, TransactionType.CHARGE);
             pointService.updateUserPoint(userId1, 20000L, TransactionType.USE);
         }catch (RuntimeException e){
             assertThat(e.getMessage()).isEqualTo("포인트가 모자랍니다.");
+            assertThat(pointService.searchUserPoint(userId1)).isEqualTo(state1);
         }
 
     }
