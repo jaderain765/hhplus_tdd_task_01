@@ -69,16 +69,43 @@ class PointServiceTest {
         assertThat(pointHistoryList.get(0).type()).isEqualTo(TransactionType.CHARGE);
         // state2
         assertThat(pointHistoryList.get(1).userId()).isEqualTo(userId);
-        assertThat(pointHistoryList.get(1).amount()).isEqualTo(10000L - 5000L);
+        assertThat(pointHistoryList.get(1).amount()).isEqualTo(5000L);
         assertThat(pointHistoryList.get(1).type()).isEqualTo(TransactionType.USE);
         // state3
         assertThat(pointHistoryList.get(2).userId()).isEqualTo(userId);
-        assertThat(pointHistoryList.get(2).amount()).isEqualTo(10000L - 5000L + 100L);
+        assertThat(pointHistoryList.get(2).amount()).isEqualTo(100L);
         assertThat(pointHistoryList.get(2).type()).isEqualTo(TransactionType.CHARGE);
     }
 
     @Test
     void updateUserPoint() {
+        long userId1 = 1L;
+        long userId2 = 2L;
+        long userId3 = 3L;
+
+        UserPoint userPoint1 = pointService.updateUserPoint(userId1, 10000L, TransactionType.CHARGE);
+        UserPoint userPoint2 = pointService.updateUserPoint(userId2, 20000L, TransactionType.CHARGE);
+        UserPoint userPoint3 = pointService.updateUserPoint(userId3, 30000L, TransactionType.CHARGE);
+
+        UserPoint searchUserPoint1 = pointService.searchUserPoint(userId1);
+        UserPoint searchUserPoint2 = pointService.searchUserPoint(userId2);
+        UserPoint searchUserPoint3 = pointService.searchUserPoint(userId3);
+
+        assertThat(userPoint1).isEqualTo(searchUserPoint1);
+        assertThat(userPoint2).isEqualTo(searchUserPoint2);
+        assertThat(userPoint3).isEqualTo(searchUserPoint3);
+    }
+
+    @Test
+    void updateUserPoint_포인트가_모자랄_때() {
+        long userId1 = 1L;
+
+        try{
+            pointService.updateUserPoint(userId1, 10000L, TransactionType.CHARGE);
+            pointService.updateUserPoint(userId1, 20000L, TransactionType.USE);
+        }catch (RuntimeException e){
+            assertThat(e.getMessage()).isEqualTo("포인트가 모자랍니다.");
+        }
 
     }
 }
