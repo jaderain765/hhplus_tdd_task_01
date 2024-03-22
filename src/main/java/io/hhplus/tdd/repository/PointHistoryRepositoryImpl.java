@@ -12,15 +12,19 @@ import java.util.Optional;
 @Repository
 public class PointHistoryRepositoryImpl implements PointHistoryRepository{
 
-    private PointHistoryTable pointHistoryTable;
+    private final PointHistoryTable pointHistoryTable;
 
     @Autowired
-    public PointHistoryRepositoryImpl(PointHistoryTable pointHistoryTable){
+    public PointHistoryRepositoryImpl(
+            PointHistoryTable pointHistoryTable
+    ){
         this.pointHistoryTable = pointHistoryTable;
     }
 
     @Override
-    public PointHistory save(PointHistory pointHistory) {
+    public PointHistory save(
+            PointHistory pointHistory
+    ) {
         long userId = pointHistory.userId();
         long amount = pointHistory.amount();
         TransactionType type = pointHistory.type();
@@ -30,7 +34,9 @@ public class PointHistoryRepositoryImpl implements PointHistoryRepository{
     }
 
     @Override
-    public List<PointHistory> findAllById(Long userId) {
+    public List<PointHistory> findAllById(
+            Long userId
+    ) {
         return pointHistoryTable.selectAllByUserId(userId);
     }
 }

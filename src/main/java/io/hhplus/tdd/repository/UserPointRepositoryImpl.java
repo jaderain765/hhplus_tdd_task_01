@@ -11,20 +11,26 @@ import java.util.Optional;
 
 @Repository
 public class UserPointRepositoryImpl implements UserPointRepository{
-    private UserPointTable userPointTable;
+    private final UserPointTable userPointTable;
 
     @Autowired
-    public UserPointRepositoryImpl(UserPointTable userPointTable){
+    public UserPointRepositoryImpl(
+            UserPointTable userPointTable
+    ){
         this.userPointTable = userPointTable;
     }
 
     @Override
-    public UserPoint save(UserPoint object) {
+    public UserPoint save(
+            UserPoint object
+    ) {
         return userPointTable.insertOrUpdate(object.id(), object.point());
     }
 
     @Override
-    public Optional<UserPoint> findById(Long id) {
+    public Optional<UserPoint> findById(
+            Long id
+    ) {
         return Optional.ofNullable(userPointTable.selectById(id));
     }
 

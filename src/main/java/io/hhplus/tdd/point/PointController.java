@@ -4,6 +4,8 @@ import io.hhplus.tdd.service.PointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,10 +16,12 @@ public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
-    private PointService pointService;
+    private final PointService pointService;
 
     @Autowired
-    public PointController(PointService pointService) {
+    public PointController(
+            PointService pointService
+    ) {
         this.pointService = pointService;
     }
 
@@ -25,11 +29,17 @@ public class PointController {
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}")
-    public UserPoint point(
+    public ResponseEntity<UserPoint> point(
             @PathVariable long id
     ) {
-        return pointService.searchUserPoint(id);
+        return new ResponseEntity<>(pointService.searchUserPoint(id), HttpStatus.OK);
     }
+//    @GetMapping("{id}")
+//    public UserPoint point(
+//            @PathVariable long id
+//    ) {
+//        return pointService.searchUserPoint(id);
+//    }
 
     /**
      * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
