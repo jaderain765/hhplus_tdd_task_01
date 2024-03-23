@@ -27,7 +27,7 @@ class PointServiceTest {
         userPointRepositoryStub = new UserPointRepositoryStub();
         pointHistoryRepositoryStub = new PointHistoryRepositoryStub();
 
-        this.pointService = new PointServiceImpl(userPointRepositoryStub,pointHistoryRepositoryStub);
+        this.pointService = new PointServiceImpl(userPointRepositoryStub, pointHistoryRepositoryStub);
     }
 
     /*
@@ -119,9 +119,11 @@ class PointServiceTest {
             }
         }
 
-        // not working yet
+        /**
+         * overflow로 인해 음수로 변했거나, 변경하려는 포인트 값이 음수 일 경우
+         */
         @Test
-        void updateUserPoint_point_stackover() {
+        void updateUserPoint_point_overflow() {
             long userId1 = 1L;
 
             Assertions.assertThrows(RuntimeException.class, () -> {
@@ -131,8 +133,9 @@ class PointServiceTest {
         }
 
         @Test
-        void updateUserPoint_is_can_not_Minus() {
+        void updateUserPoint_음수가_변경값으로_들어올_수_없다() {
             Assertions.assertThrows(RuntimeException.class, () -> {
+                pointService.updateUserPoint(1L, 20000L, TransactionType.CHARGE);
                 pointService.updateUserPoint(1L, -10000L, TransactionType.CHARGE);
             });
         }

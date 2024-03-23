@@ -53,6 +53,8 @@ public class PointServiceImpl implements PointService {
             long amount,
             TransactionType type
     ) {
+        if(amount < 0) throw new RuntimeException("사용할 수 없는 변경값입니다.");
+        
         UserPoint findUserPoint = searchUserPoint(userId);
 
         // 포인트를 사용할때, 모자를 경우
@@ -65,7 +67,7 @@ public class PointServiceImpl implements PointService {
                 findUserPoint.point() + amount;
 
         // change please
-        if(changePoint < 0) throw new RuntimeException("vhdlsxmrkqtdl dltkdgkqslek.");
+        if(changePoint < 0) throw new RuntimeException("사용할 수 없는 포인트 값입니다.");
 
         UserPoint updateUserPoint = new UserPoint(
                 userId,
