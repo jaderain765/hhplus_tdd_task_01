@@ -14,6 +14,7 @@ import io.hhplus.tdd.stub.UserPointRepositoryStub;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -138,6 +139,38 @@ class PointServiceTest {
                 pointService.updateUserPoint(1L, 20000L, TransactionType.CHARGE);
                 pointService.updateUserPoint(1L, -10000L, TransactionType.CHARGE);
             });
+        }
+
+        @Test
+        @DisplayName("포인트 충전,사용 시 동시성 테스트")
+        void updateUserPoint_동시성_테스트() throws InterruptedException {
+            // given
+            Long userId = 1L;
+            Long amount = 1000L;
+
+            int THREAD_COUNT = 1000; // 금액 사용할 횟수
+
+            CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+
+            // when
+            for(int i = 0; i < THREAD_COUNT; i++){
+                Thread thread = new Thread(()->{
+                    pointService.updateUserPoint(userId, amount, TransactionType.CHARGE);
+                    countDownLatch.countDown();
+                });
+
+                thread.start();
+            }
+
+            countDownLatch.await();
+
+            // then
+            // 1000번 충전 했기에 1000 * 1000 = 1,000,000 만큼 있어야 한다.
+            assertThat(pointService.searchUserPoint(userId).point())
+                    .isEqualTo(1000L * THREAD_COUNT);
+            // 1000번 충전 했기에 1000번의 기록이 있어야 한다.
+            assertThat(pointService.searchUserHistory(userId).size())
+                    .isEqualTo(THREAD_COUNT);
         }
     }
 }

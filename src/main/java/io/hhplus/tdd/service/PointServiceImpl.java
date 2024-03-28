@@ -13,6 +13,9 @@ import java.util.List;
 @Service
 public class PointServiceImpl implements PointService {
 
+    // 동시성 제어를 위한 Lock Handler
+    LockHandler lockHandler = new LockHandler();
+
     private final UserPointRepository userPointRepository;
 
     private final PointHistoryRepository pointHistoryRepository;
@@ -53,37 +56,39 @@ public class PointServiceImpl implements PointService {
             long amount,
             TransactionType type
     ) {
-        if(amount < 0) throw new RuntimeException("사용할 수 없는 변경값입니다.");
-        
-        UserPoint findUserPoint = searchUserPoint(userId);
+        return lockHandler.executeOnLock(userId, () -> {
+            if(amount < 0) throw new RuntimeException("사용할 수 없는 변경값입니다.");
 
-        // 포인트를 사용할때, 모자를 경우
-        if(type == TransactionType.USE && findUserPoint.point() < amount)
-            throw new RuntimeException("포인트가 모자랍니다.");
+            UserPoint findUserPoint = searchUserPoint(userId);
 
-        // 포인트의 사용/충전 여부에 따라 차감
-        long changePoint = type == TransactionType.USE ?
-                findUserPoint.point() - amount :
-                findUserPoint.point() + amount;
+            // 포인트를 사용할때, 모자를 경우
+            if(type == TransactionType.USE && findUserPoint.point() < amount)
+                throw new RuntimeException("포인트가 모자랍니다.");
 
-        // change please
-        if(changePoint < 0) throw new RuntimeException("사용할 수 없는 포인트 값입니다.");
+            // 포인트의 사용/충전 여부에 따라 차감
+            long changePoint = type == TransactionType.USE ?
+                    findUserPoint.point() - amount :
+                    findUserPoint.point() + amount;
 
-        UserPoint updateUserPoint = new UserPoint(
-                userId,
-                changePoint,
-                findUserPoint.updateMillis()
-        );
+            // change please
+            if(changePoint < 0) throw new RuntimeException("사용할 수 없는 포인트 값입니다.");
 
-        PointHistory insertPointHistory = new PointHistory(
-                0,
-                userId,
-                amount,
-                type,
-                System.currentTimeMillis()
-        );
+            UserPoint updateUserPoint = new UserPoint(
+                    userId,
+                    changePoint,
+                    findUserPoint.updateMillis()
+            );
 
-        pointHistoryRepository.save(insertPointHistory);
-        return userPointRepository.save(updateUserPoint);
+            PointHistory insertPointHistory = new PointHistory(
+                    0,
+                    userId,
+                    amount,
+                    type,
+                    System.currentTimeMillis()
+            );
+
+            pointHistoryRepository.save(insertPointHistory);
+            return userPointRepository.save(updateUserPoint);
+        });
     }
 }
